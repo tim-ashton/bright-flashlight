@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/never_show_again_button"
+        style="@style/fragment_rating_button_style"
+        android:layout_gravity="center"
+        android:text="@string/fragment_rating_never_show_button"
+        android:textAppearance="?android:textAppearanceMediumInverse" />
+
+    <Button
+        android:id="@+id/rate_later_button"
+        style="@style/fragment_rating_button_style"
+        android:text="@string/fragment_rating_rate_later_button"
+        android:textAppearance="?android:textAppearanceLargeInverse" />
+
+    <Button
+        android:id="@+id/rate_now_button"
+        style="@style/fragment_rating_button_style"
+        android:text="@string/fragment_rating_rate_now_button"
+        android:textAppearance="?android:textAppearanceLargeInverse" />
+
+</LinearLayout>

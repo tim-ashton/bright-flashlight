@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Bright Flashlight</string>
+
+
+    <!-- rating_dialog_fragment strings -->
+    <string name="fragment_rating_dialog_title">Rate This App</string>
+    <string name="fragment_rating_rate_now_button">"Rate\nNow"</string>
+    <string name="fragment_rating_rate_later_button">"Rate\nLater"</string>
+    <string name="fragment_rating_never_show_button">"Never\nShow\nAgain"</string>
+
 </resources>
