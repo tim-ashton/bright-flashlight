@@ -1,7 +1,7 @@
 package com.timashton.bright_flashlight;
 
-import android.app.Dialog;
-import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,8 +10,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 
 /*
@@ -21,31 +19,20 @@ import android.widget.Button;
  * rate the app in the gooogle play.
  *
  */
-public class RatingDialogFragment extends DialogFragment implements View.OnClickListener {
+public class RatingFragment extends Fragment implements View.OnClickListener {
 
-    public static String TAG = RatingDialogFragment.class.getName();
+    public static String TAG = RatingFragment.class.getName();
 
     @NonNull
-    public static RatingDialogFragment newInstance() {
-        return new RatingDialogFragment();
+    public static RatingFragment newInstance() {
+        return new RatingFragment();
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(R.layout.fragment_dialog_rating, container, false);
-
-        Dialog ratingDialog = getDialog();
-
-        ratingDialog.setTitle(R.string.fragment_rating_dialog_title);
-
-
-        Window window = ratingDialog.getWindow();
-        WindowManager.LayoutParams params = window.getAttributes();
-        params.y = dpToPx(100);
-        window.setAttributes(params);
+        View v = inflater.inflate(R.layout.fragment_rating, container, false);
 
         return v;
     }
@@ -67,14 +54,18 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
     @Override
     public void onClick(View v) {
 
+        // Get a reference to the FragmentManager
+        FragmentManager fm = getActivity().getFragmentManager();
+
         switch (v.getId()) {
             case R.id.rate_now_button:
                 // TODO
                 break;
             case R.id.rate_later_button:
 
-                // Dismiss the dialog
-                this.getDialog().dismiss();
+                // Remove this fragment
+                fm.popBackStack(TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
                 break;
             case R.id.never_show_again_button:
 
@@ -87,9 +78,8 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
                 // Commit the edits!
                 editor.apply();
 
-                // now dismiss the dialog
-                this.getDialog().dismiss();
-
+                // Remove this fragment
+                fm.popBackStack(TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 break;
         }
     }
