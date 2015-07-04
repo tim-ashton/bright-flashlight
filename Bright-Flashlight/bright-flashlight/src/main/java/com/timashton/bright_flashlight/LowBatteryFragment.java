@@ -3,9 +3,6 @@ package com.timashton.bright_flashlight;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +20,8 @@ import static android.os.BatteryManager.EXTRA_ICON_SMALL;
  * and display the battery icon.
  */
 public class LowBatteryFragment extends Fragment {
-    public static String TAG = RatingFragment.class.getName();
+
+    public static String TAG = LowBatteryFragment.class.getName();
 
     private static float ICON_SCALE_FACTOR = 2.0f;
 
@@ -61,7 +59,11 @@ public class LowBatteryFragment extends Fragment {
 
             if (systemBatteryDrawable != null) {
 
-                Drawable resized = scaleDrawable(systemBatteryDrawable, ICON_SCALE_FACTOR);
+                Drawable resized = Helpers.scaleDrawable(
+                        systemBatteryDrawable
+                        , ICON_SCALE_FACTOR
+                        , getActivity());
+
                 lowBatteryTV.setCompoundDrawablesWithIntrinsicBounds(resized, null, null, null);
             }
 
@@ -69,37 +71,5 @@ public class LowBatteryFragment extends Fragment {
     }
 
 
-    /*
-    Scale a drawable image
-     */
-    private Drawable scaleDrawable(@NonNull Drawable image, float scaleFactor) {
 
-        Bitmap b;
-
-        // convert image over to bitmap b
-        if (image instanceof BitmapDrawable) {
-            b = ((BitmapDrawable) image).getBitmap();
-        } else {
-            Bitmap bitmap = Bitmap.createBitmap(
-                    image.getIntrinsicWidth(), image.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            image.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            image.draw(canvas);
-            b = bitmap;
-        }
-
-        // if b is null the conversion has failed
-        if (b == null) {
-            return image;
-        }
-
-        // apply the scale to each side
-        int sizeX = Math.round(image.getIntrinsicWidth() * scaleFactor);
-        int sizeY = Math.round(image.getIntrinsicHeight() * scaleFactor);
-
-        Bitmap bitmapResized = Bitmap.createScaledBitmap(b, sizeX, sizeY, false);
-
-        return new BitmapDrawable(getResources(), bitmapResized);
-
-    }
 }

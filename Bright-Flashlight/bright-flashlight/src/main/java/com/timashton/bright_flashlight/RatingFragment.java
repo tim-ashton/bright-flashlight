@@ -5,8 +5,6 @@ import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,17 +80,5 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
                 fm.popBackStack(TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 break;
         }
-    }
-
-
-    /*
-    Converts the value entered into pixels for programmatic sizing and placement
-    of view items.
-    Allows specification of dp similar to xml declaration.
-     */
-
-    private int dpToPx(int dp) {
-        DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics);
     }
 }

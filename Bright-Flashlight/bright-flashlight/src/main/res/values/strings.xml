@@ -12,6 +12,11 @@
     <string name="fragment_rating_never_show_button">"Never\nShow\nAgain"</string>
 
     <!-- low battery fragment strings -->
-    <string name="fragment_battery_low_title">"Battery Low!\n Cannot start Bright Flashlight"</string>
+    <string name="fragment_battery_low_title">"Battery too low for\n flashlight"</string>
+
+
+    <!-- Action bar strings -->
+    <string name="action_bar_battery_status_title">100%</string>
+
 
 </resources>
