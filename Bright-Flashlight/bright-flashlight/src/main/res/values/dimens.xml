@@ -9,4 +9,8 @@
     <dimen name="fragment_rating_button_height">100dp</dimen>
     <dimen name="fragment_rating_horizontal_button_spacer">2dp</dimen>
 
+
+    <!-- low battery fragment dimensions -->
+    <dimen name="fragment_low_battery_icon_padding">2dp</dimen>
+
 </resources>

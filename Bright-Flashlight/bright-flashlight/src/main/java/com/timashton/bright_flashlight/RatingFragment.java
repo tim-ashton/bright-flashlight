@@ -73,7 +73,7 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
                 SharedPreferences settings = getActivity()
                         .getPreferences(MainActivity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean(MainActivity.PREFS_SHOW_DIALOG, false);
+                editor.putBoolean(MainActivity.PREFS_REQUEST_RATING, false);
 
                 // Commit the edits!
                 editor.apply();
