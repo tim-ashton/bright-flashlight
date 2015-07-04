@@ -38,6 +38,8 @@ public class MainActivity extends Activity {
     public static final String PREFS_REQUEST_RATING = "show_dialog_boolean";
     private static final int BATTERY_MINIMUM = 10;
     private static float ICON_SCALE_FACTOR = 1.7f;
+    private static final int BATTERY_GOOD = 29;
+    private static final int BATTERY_WARN = 14;
 
     @SuppressWarnings("deprecation")
     private Camera mCamera;
@@ -70,10 +72,10 @@ public class MainActivity extends Activity {
         Drawable currentIcon = getScaledCurrentBatteryIcon(ICON_SCALE_FACTOR);
 
         PorterDuffColorFilter colorFilter;
-        if (mBatteryPercent > 39) {
+        if (mBatteryPercent > BATTERY_GOOD) {
             colorFilter = new PorterDuffColorFilter(
                     getResources().getColor(R.color.battery_green), PorterDuff.Mode.SRC_ATOP);
-        } else if (mBatteryPercent > 14) {
+        } else if (mBatteryPercent > BATTERY_WARN) {
             colorFilter = new PorterDuffColorFilter(
                     getResources().getColor(R.color.battery_yellow), PorterDuff.Mode.SRC_ATOP);
         } else {
