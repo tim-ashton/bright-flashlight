@@ -36,15 +36,17 @@ public class MainActivity extends Activity {
 
     public static final String TAG = MainActivity.class.getName();
     public static final String PREFS_REQUEST_RATING = "show_dialog_boolean";
-    private static final int BATTERY_MINIMUM = 10;
+    private static final int BATTERY_MINIMUM = 5;
     private static float ICON_SCALE_FACTOR = 1.7f;
-    private static final int BATTERY_GOOD = 29;
-    private static final int BATTERY_WARN = 14;
+    private static final int BATTERY_GOOD = 30;
+    private static final int BATTERY_WARN = 15;
 
     @SuppressWarnings("deprecation")
     private Camera mCamera;
     private boolean mBatteryLow = false;
     private int mBatteryPercent = 100;
+    private BatteryLevelReceiver mReceiver;
+    private SurfaceTexture mDummySurfaceTexture;
 
 
     @Override
@@ -62,6 +64,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
+        // Get a handle to the menu item
         MenuItem item = menu.findItem(R.id.action_bar_battery_percent);
         TextView actionBarTV = (TextView) item.getActionView().findViewById(R.id.action_button_battery_status);
 
@@ -71,6 +74,7 @@ public class MainActivity extends Activity {
         // Get the current system battery drawable
         Drawable currentIcon = getScaledCurrentBatteryIcon(ICON_SCALE_FACTOR);
 
+        // Set up color overlays
         PorterDuffColorFilter colorFilter;
         if (mBatteryPercent > BATTERY_GOOD) {
             colorFilter = new PorterDuffColorFilter(
@@ -83,11 +87,9 @@ public class MainActivity extends Activity {
                     getResources().getColor(R.color.battery_red), PorterDuff.Mode.SRC_ATOP);
         }
 
-
+        // Apply the color filter and set the battery drawable
         if (currentIcon != null) {
-
             currentIcon.setColorFilter(colorFilter);
-
             actionBarTV.setCompoundDrawablesWithIntrinsicBounds(currentIcon, null, null, null);
         }
         return true;
@@ -97,7 +99,12 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
 
+    @Override
+    @SuppressWarnings("deprecation")
+    protected void onResume() {
+        super.onResume();
 
         // Dim the screen. The user is probably in a dark place
         WindowManager.LayoutParams windowParams = this.getWindow().getAttributes();
@@ -105,44 +112,77 @@ public class MainActivity extends Activity {
         this.getWindow().setAttributes(windowParams);
 
 
-        // Get access to the fragment manager
-        FragmentManager fm = getFragmentManager();
-
-        // Battery level below 10 %
+        // Battery level below 5 %
         if ((mBatteryPercent = getBatteryPercent()) < BATTERY_MINIMUM) {
             mBatteryLow = true;
         }
 
-
+        // If the battery is too low remove everything that is declared in the xml layout
+        // and show the low battery fragment.
         if (mBatteryLow) {
 
             // Remove the spacer view to put the low battery fragment
             // in the middle of the screen
-            View spacerView = (View) findViewById(R.id.activity_main_spacer_view);
+            View spacerView = findViewById(R.id.activity_main_spacer_view);
             spacerView.setVisibility(View.GONE);
 
             AdView adView = (AdView) findViewById(R.id.adView);
             adView.setVisibility(View.GONE);
 
-            fm.beginTransaction()
+            getFragmentManager().beginTransaction()
                     .add(R.id.activity_main
                             , LowBatteryFragment.newInstance()
                             , LowBatteryFragment.TAG)
                     .commit();
-        } else {
+        }
 
-            // register the broadcast receiver if the flashlight actually starts.
-            registerReceiver(new BatteryLevelReceiver(), new IntentFilter(
+        // The battery has enough power to run the flashlight so go ahead and run the app normally.
+        else {
+
+            // Battery receiver to intercept broadcasts from the system and update the ui.
+            mReceiver = new BatteryLevelReceiver();
+
+            // register the broadcast receiver
+            registerReceiver(mReceiver, new IntentFilter(
                     Intent.ACTION_BATTERY_CHANGED));
 
             // Just register these to update the battery percent when plugged/unplugged
-            registerReceiver(new BatteryLevelReceiver(), new IntentFilter(
+            registerReceiver(mReceiver, new IntentFilter(
                     Intent.ACTION_POWER_CONNECTED));
-            registerReceiver(new BatteryLevelReceiver(), new IntentFilter(
+            registerReceiver(mReceiver, new IntentFilter(
                     Intent.ACTION_POWER_DISCONNECTED));
 
             // kep the activity on while the flashlight is on
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+
+            // Get the camera and start the LED light
+            if (this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+
+                // TODO this may return null as there may not be a camera
+                // so need to handle - ticket open..
+                mCamera = Camera.open();
+
+                try {
+
+                    // Keep a reference to this surface texture until the application
+                    // is shut down.
+                    mDummySurfaceTexture = new SurfaceTexture(0);
+
+                    // need to set a SurfaceTexture for nexus and maybe other new devices
+                    // or there is an error.
+                    mCamera.setPreviewTexture(mDummySurfaceTexture);
+
+                } catch (IOException ioe) {
+                    Log.e(TAG, ioe.toString());
+                }
+
+                Camera.Parameters p = mCamera.getParameters();
+                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                mCamera.setParameters(p);
+                mCamera.startPreview();
+            }
+
 
             // Create and load the banner ad
             AdView mAdView = (AdView) findViewById(R.id.adView);
@@ -154,9 +194,17 @@ public class MainActivity extends Activity {
             // fragment if the user is allowing it.
             // Restore preferences
             SharedPreferences settings = getPreferences(MainActivity.MODE_PRIVATE);
+
+            // Get a reference to existing fragment
+            // This fragment should never exist on resume
+            Fragment existingFragment =
+                    getFragmentManager()
+                            .findFragmentByTag(RatingFragment.TAG);
+
+            // Show the ratings request fragment
             if (settings.getBoolean(PREFS_REQUEST_RATING, true)) {
-                if (savedInstanceState == null) {
-                    fm.beginTransaction()
+                if (existingFragment == null) {
+                    getFragmentManager().beginTransaction()
                             .add(R.id.activity_main
                                     , RatingFragment.newInstance()
                                     , RatingFragment.TAG)
@@ -167,43 +215,20 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
 
-        // If the battery is not low show the torch
-        if (!mBatteryLow) {
-
-            // Get the camera and start the LED light
-            if (this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-
-                mCamera = Camera.open();
-                try {
-                    // need to set a SurfaceTexture for nexus and maybe other new devices
-                    mCamera.setPreviewTexture(new SurfaceTexture(0));
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.toString());
-                }
-
-                Camera.Parameters p = mCamera.getParameters();
-                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                mCamera.setParameters(p);
-                mCamera.startPreview();
-            }
-        }
-    }
-
-
+    /*
+    onPause needs to release the camera and unregister the receiver.
+     */
     @Override
     protected void onPause() {
         super.onPause();
+        Log.e(TAG, "onpause");
         if (mCamera != null) {
             mCamera.release();
         }
-
-        // Finish the activity
-        finish();
+        unregisterReceiver(mReceiver);
     }
+
 
     /*
     Get the status of the battery and return a percent value from 0 - 100
@@ -214,7 +239,7 @@ public class MainActivity extends Activity {
         // Get the status of the battery.
         // Don't want to start the flashlight if in low power
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = this.registerReceiver(null, intentFilter);
+        Intent batteryStatus = registerReceiver(null, intentFilter);
 
         // If the battery status can be determined, use it to stop users from opening the flashlight
         // when their device has low battery.
@@ -232,15 +257,16 @@ public class MainActivity extends Activity {
     Get the current battery status icon for this device.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     private Drawable getScaledCurrentBatteryIcon(float scale) {
 
         LevelListDrawable currentIcon = null;
         Drawable result = null;
-        int level = 0;
-        int batteryIconId = 0;
+        int level;
+        int batteryIconId;
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = this.registerReceiver(null, intentFilter);
+        Intent batteryStatus = registerReceiver(null, intentFilter);
 
         // if access to battery status is granted set the icon to the current level
         if (batteryStatus != null) {
@@ -256,24 +282,24 @@ public class MainActivity extends Activity {
 
         // Cast to a drawable and scale
         if (currentIcon != null) {
-            result = Helpers.scaleDrawable((Drawable) currentIcon, scale, this);
+            result = Helpers.scaleDrawable(currentIcon, scale, this);
         }
 
         // Return as a regular Drawable
         return result;
     }
 
-    private class BatteryLevelReceiver extends BroadcastReceiver {
+    public class BatteryLevelReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
 
             // Get current battery power
             mBatteryPercent = getBatteryPercent();
 
-            // update the Action Bar
+            // update the Action Bar to refresh the display
             invalidateOptionsMenu();
 
-            // If Battery is below the threshold
+            // If Battery is below the threshold then shut off the flashlight.
             if (mBatteryPercent < BATTERY_MINIMUM) {
 
                 // remove the keep screen on flag
@@ -291,7 +317,7 @@ public class MainActivity extends Activity {
                 }
 
                 // Remove the spacer view
-                View spacerView = (View) findViewById(R.id.activity_main_spacer_view);
+                View spacerView = findViewById(R.id.activity_main_spacer_view);
                 if (spacerView != null) {
                     spacerView.setVisibility(View.GONE);
                 }

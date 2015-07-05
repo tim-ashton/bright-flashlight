@@ -50,6 +50,7 @@ public class Helpers {
 
         Bitmap bitmapResized = Bitmap.createScaledBitmap(b, sizeX, sizeY, false);
 
+        // Return the resized bitmap as a drawable
         return new BitmapDrawable(activity.getResources(), bitmapResized);
 
     }
