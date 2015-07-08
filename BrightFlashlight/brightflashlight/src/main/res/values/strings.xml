@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Bright Flashlight</string>
+
+
+    <!-- AdMob Banner ad ID -->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- rating dialog fragment strings -->
+    <string name="fragment_rating_title">Please Rate This App</string>
+    <string name="fragment_rating_rate_now_button">"Rate\nNow"</string>
+    <string name="fragment_rating_rate_later_button">"Rate\nLater"</string>
+    <string name="fragment_rating_never_show_button">"Never\nShow\nAgain"</string>
+
+    <!-- low battery fragment strings -->
+    <string name="fragment_battery_low_title">"Battery too low for\n flashlight"</string>
+
+
+    <!-- Action bar strings -->
+    <string name="action_bar_battery_status_title">100%</string>
+
+
+</resources>
