@@ -2,7 +2,9 @@ package com.timashton.brightflashlight;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -30,9 +32,7 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(R.layout.fragment_rating, container, false);
-
-        return v;
+        return inflater.inflate(R.layout.fragment_rating, container, false);
     }
 
     @Override
@@ -57,7 +57,12 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.rate_now_button:
-                // TODO
+
+                Intent intent = new Intent(
+                        Intent.ACTION_VIEW
+                        , Uri.parse("market://com.timashton.brightflashlight"));
+                startActivity(intent);
+
                 break;
             case R.id.rate_later_button:
 

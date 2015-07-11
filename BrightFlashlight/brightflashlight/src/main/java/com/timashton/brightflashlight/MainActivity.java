@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
     private static float ICON_SCALE_FACTOR = 1.7f;
     private static final int BATTERY_GOOD = 30;
     private static final int BATTERY_WARN = 15;
+    private static final int GET_ERR_DIALOG_REQ_CODE = 1;
 
     @SuppressWarnings("deprecation")
     private Camera mCamera;
@@ -51,6 +52,9 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onCreateOptionsMenu()");
+        }
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity_actions, menu);
@@ -63,6 +67,9 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onPrepareOptionsMenu()");
+        }
 
         // Get a handle to the menu item
         MenuItem item = menu.findItem(R.id.action_bar_battery_percent);
@@ -105,6 +112,9 @@ public class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     protected void onResume() {
         super.onResume();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onResume()");
+        }
 
         // Dim the screen. The user is probably in a dark place
         WindowManager.LayoutParams windowParams = this.getWindow().getAttributes();
@@ -159,8 +169,6 @@ public class MainActivity extends Activity {
             // Get the camera and start the LED light
             if (this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
 
-                // TODO this may return null as there may not be a camera
-                // so need to handle - ticket open..
                 mCamera = Camera.open();
 
                 try {
@@ -184,10 +192,13 @@ public class MainActivity extends Activity {
             }
 
 
+            // Check if Google Play Services is available before loading the Banner Ad
             // Create and load the banner ad
             AdView mAdView = (AdView) findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().build();
             mAdView.loadAd(adRequest);
+
+
 
 
             // Retrieve the shared preferences and show the ratings
@@ -222,10 +233,18 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+
         if (mCamera != null) {
             mCamera.release();
         }
-        unregisterReceiver(mReceiver);
+
+        try{
+            unregisterReceiver(mReceiver);
+        }
+        catch(IllegalArgumentException e){
+            Log.e(TAG, e.toString());
+        }
+
     }
 
 
@@ -258,6 +277,9 @@ public class MainActivity extends Activity {
     @Nullable
     @SuppressWarnings("deprecation")
     private Drawable getScaledCurrentBatteryIcon(float scale) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "getScaledCurrentBatteryIcon()");
+        }
 
         LevelListDrawable currentIcon = null;
         Drawable result = null;
@@ -291,6 +313,7 @@ public class MainActivity extends Activity {
     public class BatteryLevelReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+
 
             // Get current battery power
             mBatteryPercent = getBatteryPercent();

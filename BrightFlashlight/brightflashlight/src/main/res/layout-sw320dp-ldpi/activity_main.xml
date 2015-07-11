@@ -4,8 +4,8 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="@dimen/sw320dp_ldpi_activity_vertical_margin"
-    android:layout_marginTop="@dimen/sw320dp_ldpi_activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".MainActivity">
@@ -14,7 +14,7 @@
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        ads:adSize="MEDIUM_RECTANGLE"
+        ads:adSize="LARGE_BANNER"
         ads:adUnitId="@string/banner_ad_unit_id" />
 
     <View

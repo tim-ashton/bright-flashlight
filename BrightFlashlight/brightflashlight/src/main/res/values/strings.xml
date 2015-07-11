@@ -3,7 +3,7 @@
 
 
     <!-- AdMob Banner ad ID -->
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id">ca-app-pub-1602058626891390/3502492061</string>
 
     <!-- rating dialog fragment strings -->
     <string name="fragment_rating_title">Please Rate This App</string>
