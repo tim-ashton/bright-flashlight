@@ -22,6 +22,7 @@ import android.widget.Button;
 public class RatingFragment extends Fragment implements View.OnClickListener {
 
     public static String TAG = RatingFragment.class.getName();
+    private static String PLAY_STORE_CONNECTION = "market://details?id=com.timashton.brightflashlight";
 
     @NonNull
     public static RatingFragment newInstance() {
@@ -58,9 +59,13 @@ public class RatingFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.rate_now_button:
 
+                // Remove this fragment
+                fm.popBackStack(TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                // Start the Google Play intent and send user to the bright flashlight listing
                 Intent intent = new Intent(
                         Intent.ACTION_VIEW
-                        , Uri.parse("market://com.timashton.brightflashlight"));
+                        , Uri.parse(PLAY_STORE_CONNECTION));
                 startActivity(intent);
 
                 break;
