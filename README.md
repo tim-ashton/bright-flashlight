@@ -1,2 +1,2 @@
-# bright-flashlight
+# Bright Flashlight
 Bright Flashlight application for Android
